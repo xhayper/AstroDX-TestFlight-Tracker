@@ -31,6 +31,9 @@ def main():
 
     anyOpen = "open" in statuses.values()
 
+    if not anyOpen:
+        return
+
     content = ""
     color = 16711680
 

@@ -6,18 +6,14 @@ import requests
 
 import os
 
-ASTRODX_TESTFLIGHT = "https://testflight.apple.com/join/rACTLjPL"
 ASTRODX_TESTFLIGHTS = {
     "Group A": "https://testflight.apple.com/join/rACTLjPL",
     "Group B": "https://testflight.apple.com/join/ocj3yptn",
 }
 
-
 def main():
-    with open("README.md", newline="\n") as f:
-        readme = f.read()
-
     statuses = {}
+    
     for name, link in ASTRODX_TESTFLIGHTS.items():
         page = requests.get(
             link,
@@ -78,4 +74,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

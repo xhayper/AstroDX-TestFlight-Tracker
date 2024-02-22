@@ -1,9 +1,5 @@
-import re
-from urllib.parse import quote
-
-import bs4
 import requests
-
+import bs4
 import os
 
 ASTRODX_TESTFLIGHTS = {

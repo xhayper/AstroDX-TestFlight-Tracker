@@ -73,7 +73,7 @@ def main():
                 "fields": fields
             }
         ]
-    }
+    })
 
     
 

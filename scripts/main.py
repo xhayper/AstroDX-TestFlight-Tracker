@@ -60,7 +60,7 @@ def main():
     for name, link in ASTRODX_TESTFLIGHTS.items():
         fields.append({
             "name": name,
-            "value": value,
+            "value": link,
             "inline": True
         })
 

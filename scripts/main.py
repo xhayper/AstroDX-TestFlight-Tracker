@@ -68,15 +68,13 @@ def main():
         "content": content,
         "embeds": [
             {
+                "title": "TestFlight status",
                 "color": color,
                 "description": description,
                 "fields": fields
             }
         ]
     })
-
-    
-
 
 if __name__ == "__main__":
     main()

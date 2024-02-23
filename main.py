@@ -28,27 +28,23 @@ def writeData(data: dict):
 data = readData()
 
 
-def constructMessage(status: str, name: str, link: str) -> dict:
+def constructEmbed(status: str, name: str, link: str) -> dict:
     upperCaseFirstLetter = lambda s: s[0].upper() + s[1:]
     return {
-        "embeds": [
+        "title": f"TestFlight {name} status",
+        "color": 65280 if status == "open" else 16711680,
+        "thumbnail": {
+            "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/76/51/3a/76513ae3-9498-ae0a-83e0-787a90f763f9/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/1920x1080bb-80.png"
+        },
+        "fields": [
             {
-                "title": f"TestFlight {name} status",
-                "color": 65280 if status == "open" else 16711680,
-                "thumbnail": {
-                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/76/51/3a/76513ae3-9498-ae0a-83e0-787a90f763f9/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/1920x1080bb-80.png"
-                },
-                "fields": [
-                    {
-                        "name": "Status",
-                        "value": upperCaseFirstLetter(status),
-                        "inline": True,
-                    },
-                    {"name": "Link", "value": link, "inline": True},
-                ],
-                "timestamp": datetime.datetime.now().isoformat(),
-            }
-        ]
+                "name": "Status",
+                "value": upperCaseFirstLetter(status),
+                "inline": True,
+            },
+            {"name": "Link", "value": link, "inline": True},
+        ],
+        "timestamp": datetime.datetime.now().isoformat(),
     }
 
 
@@ -81,39 +77,41 @@ def main():
 
     statuses = getTestFlightStatuses()
 
+    embeds = []
+
     for name, status in statuses.items():
-        if not "messageId" in data:
-            data["messageId"] = {}
+        embeds.append(constructEmbed(status, name, ASTRODX_TESTFLIGHTS[name]))
 
-        editMessage = False
+    message = {
+        "embeds": embeds,
+    }
 
-        if name in data["messageId"]:
-            editMessage = True
+    editMessage = "messageId" in data
 
-        embed = constructMessage(status, name, ASTRODX_TESTFLIGHTS[name])
-
-        if editMessage:
-            requests.patch(
-                f"{discordWebhookUrl}/messages/{data['messageId'][name]}", json=embed
-            )
-        else:
-            response = requests.post(
-                f"{discordWebhookUrl}?wait=true",
-                headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                json=embed,
-            )
-            data["messageId"][name] = response.json()["id"]
+    if editMessage:
+        requests.patch(
+            f"{discordWebhookUrl}/messages/{data['messageId'][name]}", json=message
+        )
+    else:
+        response = requests.post(
+            f"{discordWebhookUrl}?wait=true",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            json=message,
+        )
+        data["messageId"] = response.json()["id"]
 
     writeData(data)
+
 
 def mainLoop():
     while True:
         print("Updating messages...")
         main()
         time.sleep(60)
+
 
 if __name__ == "__main__":
     mainLoop()

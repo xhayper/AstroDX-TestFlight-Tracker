@@ -1,6 +1,7 @@
 import datetime
 import requests
 import json
+import time
 import bs4
 import os
 
@@ -34,6 +35,9 @@ def constructMessage(status: str, name: str, link: str) -> dict:
             {
                 "title": f"TestFlight {name} status",
                 "color": 65280 if status == "open" else 16711680,
+                "thumbnail": {
+                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/76/51/3a/76513ae3-9498-ae0a-83e0-787a90f763f9/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/1920x1080bb-80.png"
+                },
                 "fields": [
                     {
                         "name": "Status",
@@ -105,5 +109,10 @@ def main():
 
     writeData(data)
 
+def mainLoop():
+    while True:
+        main()
+        time.sleep(60)
+
 if __name__ == "__main__":
-    main()
+    mainLoop()

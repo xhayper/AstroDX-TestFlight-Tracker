@@ -90,7 +90,7 @@ def main():
 
     if editMessage:
         requests.patch(
-            f"{discordWebhookUrl}/messages/{data['messageId'][name]}", json=message
+            f"{discordWebhookUrl}/messages/{data['messageId']}", json=message
         )
     else:
         response = requests.post(

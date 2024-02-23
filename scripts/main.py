@@ -5,6 +5,7 @@ import os
 ASTRODX_TESTFLIGHTS = {
     "Group A": "https://testflight.apple.com/join/rACTLjPL",
     "Group B": "https://testflight.apple.com/join/ocj3yptn",
+    "Group C": "https://testflight.apple.com/join/CuMxZE2M",
 }
 
 def main():

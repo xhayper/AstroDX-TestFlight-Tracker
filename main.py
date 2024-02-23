@@ -111,6 +111,7 @@ def main():
 
 def mainLoop():
     while True:
+        print("Updating messages...")
         main()
         time.sleep(60)
 

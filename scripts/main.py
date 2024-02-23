@@ -39,7 +39,7 @@ def main():
     color = 16711680
 
     if anyOpen:
-        content = "<@&1190732170126442557>"
+        # content = "<@&1190732170126442557>"
         color = 65280
     
     webhookUrl = os.environ["DISCORD_WEBHOOK_URL"]

@@ -26,3 +26,10 @@ jobs:
       run: python scripts/main.py
       env:
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+    -
+      uses: EndBug/add-and-commit@v9
+      with:
+            add: 'data.json'
+            default_author: github_actions
+            message: "chore: database update"

@@ -46,7 +46,7 @@ def constructEmbed(status: str, name: str, link: str) -> dict:
             },
             {"name": "Link", "value": link, "inline": True},
         ],
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
     }
 
 

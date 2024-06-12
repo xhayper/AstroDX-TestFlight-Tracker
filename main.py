@@ -110,10 +110,16 @@ def main():
 
 def mainLoop():
     while True:
-        print("Updating messages...")
-        main()
-        time.sleep(60)
+        try:
+            print("Updating messages...")
+            main()
+            time.sleep(60)
+        except:
+            print("woops")
 
 
 if __name__ == "__main__":
-    mainLoop()
+    try:
+        mainLoop()
+    except:
+        print("woops")

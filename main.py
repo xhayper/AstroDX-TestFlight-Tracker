@@ -113,9 +113,9 @@ def mainLoop():
         try:
             print("Updating messages...")
             main()
-            time.sleep(60)
         except:
-            print("woops")
+            print("woops")     
+        time.sleep(60)
 
 
 if __name__ == "__main__":

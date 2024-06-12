@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import bs4
+import sys
 import os
 
 ASTRODX_TESTFLIGHTS = {
@@ -113,6 +114,8 @@ def mainLoop():
         try:
             print("Updating messages...")
             main()
+        except KeyboardInterrupt:
+            sys.exit(130)
         except:
             print("woops")     
         time.sleep(60)
@@ -121,5 +124,7 @@ def mainLoop():
 if __name__ == "__main__":
     try:
         mainLoop()
+    except KeyboardInterrupt:
+        sys.exit(130)
     except:
         print("woops")

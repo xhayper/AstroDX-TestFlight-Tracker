@@ -13,6 +13,7 @@ ASTRODX_TESTFLIGHTS = {
     "Group B": "https://testflight.apple.com/join/ocj3yptn",
     "Group C": "https://testflight.apple.com/join/CuMxZE2M",
     "Group D": "https://testflight.apple.com/join/T6qKfV6f",
+    "Group E": "https://testflight.apple.com/join/sMm1MCYc",
 }
 
 

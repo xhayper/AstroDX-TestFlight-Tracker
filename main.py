@@ -1,4 +1,3 @@
-import datetime
 import json
 import time
 import sys
@@ -7,18 +6,23 @@ import requests
 import bs4
 
 ASTRODX_TESTFLIGHTS = {
-    "Group A": "https://testflight.apple.com/join/d7rx8Gce",
-    "Group B": "https://testflight.apple.com/join/vZkqCBaW",
-    "Group C": "https://testflight.apple.com/join/6ySgqPyW",
-    "Group D": "https://testflight.apple.com/join/71vbKTKq",
-    "Group E": "https://testflight.apple.com/join/AYFe4Qyh",
-    "Group F": "https://testflight.apple.com/join/yFhEejR9",
-    "Group G": "https://testflight.apple.com/join/d67RmvFG",
-    "Group H": "https://testflight.apple.com/join/taNXJKTM",
+    "Group A (Kumoumi)": "https://testflight.apple.com/join/d7rx8Gce",
+    "Group B (Kumoumi)": "https://testflight.apple.com/join/vZkqCBaW",
+    "Group C (Kumoumi)": "https://testflight.apple.com/join/6ySgqPyW",
+    "Group D (Kumoumi)": "https://testflight.apple.com/join/71vbKTKq",
+    "Group E (Kumoumi)": "https://testflight.apple.com/join/AYFe4Qyh",
+    "Group F (Kumoumi)": "https://testflight.apple.com/join/yFhEejR9",
+    "Group G (Kumoumi)": "https://testflight.apple.com/join/d67RmvFG",
+    "Group H (Kumoumi)": "https://testflight.apple.com/join/taNXJKTM",
+    "Group A (Jinale)": "https://testflight.apple.com/join/rACTLjPL",
+    "Group B (Jinale)": "https://testflight.apple.com/join/ocj3yptn",
+    "Group C (Jinale)": "https://testflight.apple.com/join/CuMxZE2M",
+    "Group D (Jinale)": "https://testflight.apple.com/join/T6qKfV6f",
+    "Group E (Jinale)": "https://testflight.apple.com/join/sMm1MCYc",
 }
 
 
-def readData() -> dict:
+def read_data() -> dict:
     try:
         with open("data.json", "r", encoding="utf-8") as openfile:
             return json.load(openfile)
@@ -26,29 +30,13 @@ def readData() -> dict:
         return {}
 
 
-def writeData(data: dict):
+def write_data(data: dict):
     with open("data.json", "w+", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
 
-def constructEmbed(status: str, name: str, link: str) -> dict:
-    def upperCaseFirstLetter(s): return s[0].upper() + s[1:]
-    return {
-        "title": f"TestFlight {name} status",
-        "color": 65280 if status == "open" else 16711680,
-        "thumbnail": {
-            "url": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/76/51/3a/76513ae3-9498-ae0a-83e0-787a90f763f9/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/1920x1080bb-80.png"
-        },
-        "fields": [
-            {
-                "name": "Status",
-                "value": upperCaseFirstLetter(status),
-                "inline": True,
-            },
-            {"name": "Link", "value": link, "inline": True},
-        ],
-        "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
-    }
+def create_message(status: str, name: str, link: str) -> str:
+    return f"TestFlight {name}: {'🔴' if status != 'open' else '🟢'} {status.title()} | <{link}>"
 
 
 def getTestFlightStatuses() -> dict[str, str]:
@@ -63,6 +51,7 @@ def getTestFlightStatuses() -> dict[str, str]:
 
         if len(status_text) == 0:
             statuses[name] = "unknown"
+            time.sleep(.5)
             continue
 
         status_text = status_text[0].get_text()
@@ -75,11 +64,13 @@ def getTestFlightStatuses() -> dict[str, str]:
 
         statuses[name] = status
 
+        time.sleep(.5)
+
     return statuses
 
 
 def main():
-    data = readData()
+    data = read_data()
     discord_webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
 
     if discord_webhook_url is None:
@@ -88,19 +79,18 @@ def main():
 
     statuses = getTestFlightStatuses()
 
-    embeds = []
-
-    for name, status in statuses.items():
-        embeds.append(constructEmbed(status, name, ASTRODX_TESTFLIGHTS[name]))
-
+    messages = map(lambda x: create_message(
+        x[1], x[0], ASTRODX_TESTFLIGHTS[x[0]]), statuses.items())
     message = {
-        "embeds": embeds,
+        "embeds": [],
+        "content": "\n".join(messages) +
+        f"\n\n-# Last updated: <t:{round(time.time())}>"
     }
 
     edit_message = "messageId" in data
 
     if edit_message:
-        requests.patch(
+        response = requests.patch(
             f"{discord_webhook_url}/messages/{data['messageId']}", json=message, timeout=5
         )
     else:
@@ -115,14 +105,15 @@ def main():
         )
         data["messageId"] = response.json()["id"]
 
-    writeData(data)
+    write_data(data)
 
 
-def mainLoop():
+def main_loop():
     while True:
         try:
             print("Updating messages...")
             main()
+            print("Done!")
         except KeyboardInterrupt:
             sys.exit(130)
         time.sleep(60)
@@ -130,6 +121,6 @@ def mainLoop():
 
 if __name__ == "__main__":
     try:
-        mainLoop()
+        main_loop()
     except KeyboardInterrupt:
         sys.exit(130)

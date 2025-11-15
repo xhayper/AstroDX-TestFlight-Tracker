@@ -116,6 +116,8 @@ def main_loop():
             print("Done!")
         except KeyboardInterrupt:
             sys.exit(130)
+        except Exception as e:
+            print(e)
         time.sleep(60)
 
 
@@ -124,3 +126,5 @@ if __name__ == "__main__":
         main_loop()
     except KeyboardInterrupt:
         sys.exit(130)
+    except Exception as e:
+        print(e)

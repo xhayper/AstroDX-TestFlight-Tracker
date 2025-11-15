@@ -1,40 +1,38 @@
-#!/usr/bin/env python3
-
 import datetime
-import requests
 import json
 import time
-import bs4
 import sys
 import os
+import requests
+import bs4
 
 ASTRODX_TESTFLIGHTS = {
-    "Group A": "https://testflight.apple.com/join/rACTLjPL",
-    "Group B": "https://testflight.apple.com/join/ocj3yptn",
-    "Group C": "https://testflight.apple.com/join/CuMxZE2M",
-    "Group D": "https://testflight.apple.com/join/T6qKfV6f",
-    "Group E": "https://testflight.apple.com/join/sMm1MCYc",
+    "Group A": "https://testflight.apple.com/join/d7rx8Gce",
+    "Group B": "https://testflight.apple.com/join/vZkqCBaW",
+    "Group C": "https://testflight.apple.com/join/6ySgqPyW",
+    "Group D": "https://testflight.apple.com/join/71vbKTKq",
+    "Group E": "https://testflight.apple.com/join/AYFe4Qyh",
+    "Group F": "https://testflight.apple.com/join/yFhEejR9",
+    "Group G": "https://testflight.apple.com/join/d67RmvFG",
+    "Group H": "https://testflight.apple.com/join/taNXJKTM",
 }
 
 
 def readData() -> dict:
     try:
-        with open("data.json", "r") as openfile:
+        with open("data.json", "r", encoding="utf-8") as openfile:
             return json.load(openfile)
     except FileNotFoundError:
         return {}
 
 
 def writeData(data: dict):
-    with open("data.json", "w+") as file:
+    with open("data.json", "w+", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
 
-data = readData()
-
-
 def constructEmbed(status: str, name: str, link: str) -> dict:
-    upperCaseFirstLetter = lambda s: s[0].upper() + s[1:]
+    def upperCaseFirstLetter(s): return s[0].upper() + s[1:]
     return {
         "title": f"TestFlight {name} status",
         "color": 65280 if status == "open" else 16711680,
@@ -57,10 +55,17 @@ def getTestFlightStatuses() -> dict[str, str]:
     statuses = {}
 
     for name, link in ASTRODX_TESTFLIGHTS.items():
-        page = requests.get(link, headers={"Accept-Language": "en-us"}).text
+        page = requests.get(
+            link, headers={"Accept-Language": "en-us"}, timeout=5).text
 
         soup = bs4.BeautifulSoup(page, "html.parser")
-        status_text = soup.select(".beta-status span")[0].get_text()
+        status_text = soup.select(".beta-status span")
+
+        if len(status_text) == 0:
+            statuses[name] = "unknown"
+            continue
+
+        status_text = status_text[0].get_text()
         if "This beta is full." in status_text:
             status = "full"
         elif "This beta isn't accepting" in status_text:
@@ -74,9 +79,10 @@ def getTestFlightStatuses() -> dict[str, str]:
 
 
 def main():
-    discordWebhookUrl = os.environ.get("DISCORD_WEBHOOK_URL")
+    data = readData()
+    discord_webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
 
-    if discordWebhookUrl is None:
+    if discord_webhook_url is None:
         print("DISCORD_WEBHOOK_URL environment variable not set")
         return
 
@@ -91,20 +97,21 @@ def main():
         "embeds": embeds,
     }
 
-    editMessage = "messageId" in data
+    edit_message = "messageId" in data
 
-    if editMessage:
+    if edit_message:
         requests.patch(
-            f"{discordWebhookUrl}/messages/{data['messageId']}", json=message
+            f"{discord_webhook_url}/messages/{data['messageId']}", json=message, timeout=5
         )
     else:
         response = requests.post(
-            f"{discordWebhookUrl}?wait=true",
+            f"{discord_webhook_url}?wait=true",
             headers={
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             },
             json=message,
+            timeout=5
         )
         data["messageId"] = response.json()["id"]
 
@@ -118,8 +125,6 @@ def mainLoop():
             main()
         except KeyboardInterrupt:
             sys.exit(130)
-        except:
-            print("woops")     
         time.sleep(60)
 
 
@@ -128,5 +133,3 @@ if __name__ == "__main__":
         mainLoop()
     except KeyboardInterrupt:
         sys.exit(130)
-    except:
-        print("woops")
